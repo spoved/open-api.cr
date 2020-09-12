@@ -1,6 +1,8 @@
 # open-api
 
-A crystal implementation of the OpenAPI spec data structures. 
+A crystal implementation of the OpenAPI spec data structures. See [swagger.io](https://swagger.io/specification/)
+
+This is in a current beta form, contributions are always welcome.
 
 ## Installation
 
