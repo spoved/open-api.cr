@@ -84,6 +84,9 @@ class Open::Api
       when "put"
         pdef.responses[200] = Open::Api::Response.new("Create #{data[:model]} object")
         pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
+      when "options"
+        pdef.responses[200] = Open::Api::Response.new("options")
+        pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
       else
         raise "Oper #{oper} not supported"
       end
@@ -94,26 +97,23 @@ class Open::Api
       name.gsub("::", "")
     end
 
-    def build_open_api(title)
-      File.open("fulgurite-api.spec.yaml", "w") do |file|
-        api_def = Open::Api.new(title)
+    def build_open_api(title) : Open::Api
+      api_def = Open::Api.new(title)
 
-        schema_refs.each do |name, props|
-          api_def.components.schemas[format_name(name)] = Open::Api::Schema.new(
-            schema_type: "object",
-            properties: props,
-          )
-        end
-
-        route_meta.each do |path, opers|
-          opers.each do |oper, data|
-            api_def.paths[path] = Open::Api::PathItem.new unless api_def.paths[path]?
-            api_def.paths[path][oper] = path_definition(oper, data, api_def)
-          end
-        end
-
-        file.puts api_def.to_yaml
+      schema_refs.each do |name, props|
+        api_def.components.schemas[format_name(name)] = Open::Api::Schema.new(
+          schema_type: "object",
+          properties: props,
+        )
       end
+
+      route_meta.each do |path, opers|
+        opers.each do |oper, data|
+          api_def.paths[path] = Open::Api::PathItem.new unless api_def.paths[path]?
+          api_def.paths[path][oper] = path_definition(oper, data, api_def)
+        end
+      end
+      api_def
     end
   end
 
