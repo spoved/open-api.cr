@@ -21,10 +21,10 @@ class Open::Api
 
   alias SchemaRef = Schema | Ref
   alias Paths = Hash(String, PathItem)
+  alias Wrapper = NamedTuple(method: Proc(Open::Api::Schema), key: String)
+  alias RouteMetaDatum = Hash(Symbol, Bool | Hash(Symbol, String) | String | Nil | Hash(String, Open::Api::SchemaRef) | Wrapper)
 
-  alias RouteMetaDatum = Hash(Symbol, Bool | Hash(Symbol, String) | String | Nil | Hash(String, Open::Api::SchemaRef))
-
-  class_property schema_refs = Hash(String, Hash(String, Open::Api::SchemaRef)).new
+  class_property schema_refs = Hash(String, Open::Api::Schema).new
   class_property route_meta = Hash(String, Hash(String, RouteMetaDatum)).new
 
   module ClassMethods
@@ -32,6 +32,7 @@ class Open::Api
       pdef = Open::Api::OperationItem.new(
         summary: data[:multi] ? "#{oper} #{data[:model]} list" : "#{oper} #{data[:model]}"
       )
+      pdef.parameters << Open::Api::Parameter.new("id", "path", Open::Api::Schema.new("string"), required: true) if data[:path] =~ /\{id\}/
 
       schema = if !data[:schema].nil?
                  Open::Api::Schema.new(
@@ -49,28 +50,19 @@ class Open::Api
 
       case oper
       when "get"
-        unless data[:filter].as(Hash(Symbol, String)).empty?
-          data[:filter].as(Hash(Symbol, String)).keys.map(&.to_s).each do |name|
-            pdef.parameters << Open::Api::Parameter.new(name, "query", Open::Api::Schema.new("string"))
-          end
-        end
-
         if data[:multi]
           pdef.responses[200] = Open::Api::Response.new("fetch #{data[:model]} object")
+          wrapper = data[:wrapper].as(Wrapper)
+
+          refname = "#{format_name(data[:model].as(String))}List"
+          s = wrapper[:method].call
+          s.properties.not_nil![wrapper[:key]] = Open::Api::Schema.new(
+            "array", items: Open::Api::Ref.new("#/components/schemas/#{format_name(data[:model].as(String))}")
+          )
+          Open::Api.schema_refs[refname] = s
+
           pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(
-            schema: Open::Api::Schema.new(
-              schema_type: "object",
-              properties: Hash(String, Open::Api::SchemaRef){
-                "limit"  => Open::Api::Schema.new("integer"),
-                "offset" => Open::Api::Schema.new("integer"),
-                "size"   => Open::Api::Schema.new("integer"),
-                "total"  => Open::Api::Schema.new("integer"),
-                "data"   => Open::Api::Schema.new(
-                  schema_type: "array",
-                  items: schema,
-                ),
-              },
-            )
+            schema: Open::Api::Ref.new("#/components/schemas/#{refname}")
           )
 
           pdef.parameters << Open::Api::Parameter.new("limit", "query", Open::Api::Schema.new("string"))
@@ -78,6 +70,12 @@ class Open::Api
         else
           pdef.responses[200] = Open::Api::Response.new("fetch #{data[:model]} objects")
           pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
+        end
+
+        unless data[:filter].as(Hash(Symbol, String)).empty?
+          data[:filter].as(Hash(Symbol, String)).keys.map(&.to_s).each do |name|
+            pdef.parameters << Open::Api::Parameter.new(name, "query", Open::Api::Schema.new("string"))
+          end
         end
       when "delete"
         pdef.responses[204] = Open::Api::Response.new("Delete #{data[:model]} object")
@@ -100,18 +98,15 @@ class Open::Api
     def build_open_api(title) : Open::Api
       api_def = Open::Api.new(title)
 
-      schema_refs.each do |name, props|
-        api_def.components.schemas[format_name(name)] = Open::Api::Schema.new(
-          schema_type: "object",
-          properties: props,
-        )
-      end
-
       route_meta.each do |path, opers|
         opers.each do |oper, data|
           api_def.paths[path] = Open::Api::PathItem.new unless api_def.paths[path]?
           api_def.paths[path][oper] = path_definition(oper, data, api_def)
         end
+      end
+
+      schema_refs.each do |name, schema|
+        api_def.components.schemas[format_name(name)] = schema
       end
       api_def
     end

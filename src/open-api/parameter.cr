@@ -15,6 +15,6 @@ class Open::Api
     property deprecated : Bool = false
     property schema : SchemaRef | Nil
 
-    def initialize(@name, @parameter_in, @schema : SchemaRef | Nil = nil); end
+    def initialize(@name, @parameter_in, @schema : SchemaRef | Nil = nil, @required : Bool = false); end
   end
 end
