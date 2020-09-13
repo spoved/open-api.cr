@@ -57,7 +57,7 @@ class Open::Api
           refname = "#{format_name(data[:model].as(String))}List"
           s = wrapper[:method].call
           s.properties.not_nil![wrapper[:key]] = Open::Api::Schema.new(
-            "array", items: Open::Api::Ref.new("#/components/schemas/#{format_name(data[:model].as(String))}")
+            "array", items: schema
           )
           Open::Api.schema_refs[refname] = s
 
