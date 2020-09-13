@@ -22,7 +22,7 @@ class Open::Api
   alias SchemaRef = Schema | Ref
   alias Paths = Hash(String, PathItem)
   alias Wrapper = NamedTuple(method: Proc(Open::Api::Schema), key: String)
-  alias RouteMetaDatum = Hash(Symbol, Bool | Hash(Symbol, String) | String | Nil | Hash(String, Open::Api::SchemaRef) | Wrapper)
+  alias RouteMetaDatum = Hash(Symbol, Bool | Hash(Symbol, String) | String | Nil | Open::Api::Schema | Wrapper)
 
   class_property schema_refs = Hash(String, Open::Api::Schema).new
   class_property route_meta = Hash(String, Hash(String, RouteMetaDatum)).new
@@ -35,10 +35,7 @@ class Open::Api
       pdef.parameters << Open::Api::Parameter.new("id", "path", Open::Api::Schema.new("string"), required: true) if data[:path] =~ /\{id\}/
 
       schema = if !data[:schema].nil?
-                 Open::Api::Schema.new(
-                   schema_type: "object",
-                   properties: data[:schema].as(Hash(String, Open::Api::SchemaRef)),
-                 )
+                 data[:schema].as(Open::Api::Schema)
                elsif api_def.components.schemas[format_name(data[:model].as(String))]?
                  Open::Api::Ref.new("#/components/schemas/#{format_name(data[:model].as(String))}")
                else
