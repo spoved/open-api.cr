@@ -95,6 +95,11 @@ class Open::Api
     def build_open_api(title) : Open::Api
       api_def = Open::Api.new(title)
 
+      # Populate components
+      schema_refs.each do |name, schema|
+        api_def.components.schemas[format_name(name)] = schema
+      end
+
       route_meta.each do |path, opers|
         opers.each do |oper, data|
           api_def.paths[path] = Open::Api::PathItem.new unless api_def.paths[path]?
@@ -102,9 +107,14 @@ class Open::Api
         end
       end
 
+      # Populate components with any missing ones
+
       schema_refs.each do |name, schema|
-        api_def.components.schemas[format_name(name)] = schema
+        unless api_def.components.schemas[format_name(name)]?
+          api_def.components.schemas[format_name(name)] = schema
+        end
       end
+
       api_def
     end
   end
