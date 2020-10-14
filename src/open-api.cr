@@ -64,6 +64,7 @@ class Open::Api
 
           pdef.parameters << Open::Api::Parameter.new("limit", "query", Open::Api::Schema.new("string"))
           pdef.parameters << Open::Api::Parameter.new("offset", "query", Open::Api::Schema.new("string"))
+          pdef.parameters << Open::Api::Parameter.new("order_by", "query", Open::Api::Schema.new("string"))
         else
           pdef.responses[200] = Open::Api::Response.new("fetch #{data[:model]} objects")
           pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
