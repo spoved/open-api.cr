@@ -2,8 +2,8 @@ name: open-api
 version: 0.1.1
 
 authors:
-  - your-name-here <your-email-here>
+    - Holden Omans <holden.omans@gmail.com>
 
-crystal: 0.35.1
+crystal: 0.36.0
 
 license: MIT
