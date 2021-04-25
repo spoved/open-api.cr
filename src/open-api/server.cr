@@ -8,5 +8,8 @@ class Open::Api
 
     property url : String?
     property description : String?
+
+    def initialize(@url, @description = nil)
+    end
   end
 end

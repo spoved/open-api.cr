@@ -15,10 +15,20 @@ class Open::Api
     property required : Array(String)? = nil
     property default : String | Bool | Int32 | Int64 | Nil = nil
 
-    def initialize(@schema_type, @default = nil,
-                   @items : SchemaRef? = nil,
-                   @properties : Hash(String, SchemaRef)? = nil,
-                   @required = nil, @format = nil)
+    @[JSON::Field(emit_nil: false)]
+    @[YAML::Field(emit_nil: false)]
+    property example : Open::Api::ExampleValue = nil
+    property examples : Array(Open::Api::ExampleValue) = Array(Open::Api::ExampleValue).new
+
+    def initialize(
+      @schema_type,
+      @default = nil,
+      @items : SchemaRef? = nil,
+      @properties : Hash(String, SchemaRef)? = nil,
+      @required = nil,
+      @format = nil,
+      @example = nil
+    )
     end
   end
 end

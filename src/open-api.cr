@@ -62,8 +62,8 @@ class Open::Api
             schema: Open::Api::Ref.new("#/components/schemas/#{refname}")
           )
 
-          pdef.parameters << Open::Api::Parameter.new("limit", "query", Open::Api::Schema.new("string"))
-          pdef.parameters << Open::Api::Parameter.new("offset", "query", Open::Api::Schema.new("string"))
+          pdef.parameters << Open::Api::Parameter.new("limit", "query", Open::Api::Schema.new("number", example: 10))
+          pdef.parameters << Open::Api::Parameter.new("offset", "query", Open::Api::Schema.new("number", example: 0))
           pdef.parameters << Open::Api::Parameter.new("order_by", "query", Open::Api::Schema.new("string"))
         else
           pdef.responses[200] = Open::Api::Response.new("fetch #{data[:model]} objects")
