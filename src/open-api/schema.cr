@@ -18,7 +18,6 @@ class Open::Api
     @[JSON::Field(emit_nil: false)]
     @[YAML::Field(emit_nil: false)]
     property example : Open::Api::ExampleValue = nil
-    property examples : Array(Open::Api::ExampleValue) = Array(Open::Api::ExampleValue).new
 
     def initialize(
       @schema_type,
