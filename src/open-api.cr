@@ -80,6 +80,9 @@ class Open::Api
       when "put"
         pdef.responses[200] = Open::Api::Response.new("Create #{data[:model]} object")
         pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
+      when "patch"
+        pdef.responses[200] = Open::Api::Response.new("Create #{data[:model]} object")
+        pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
       when "options"
         pdef.responses[200] = Open::Api::Response.new("options")
         pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
