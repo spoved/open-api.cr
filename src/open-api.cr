@@ -22,15 +22,22 @@ class Open::Api
   alias SchemaRef = Schema | Ref
   alias Paths = Hash(String, PathItem)
   alias Wrapper = NamedTuple(method: Proc(Open::Api::Schema), key: String)
-  alias RouteMetaDatum = Hash(Symbol, Bool | Hash(Symbol, String) | String | Nil | Open::Api::Schema | Wrapper)
+  alias RouteMetaDatum = Hash(Symbol, Bool | Hash(Symbol, String) | Array(String) | String | Nil | Open::Api::Schema | Wrapper)
 
   class_property schema_refs = Hash(String, Open::Api::Schema).new
   class_property route_meta = Hash(String, Hash(String, RouteMetaDatum)).new
 
   module ClassMethods
     private def path_definition(oper, data, api_def) : Open::Api::OperationItem
+      summary = data[:summary].as(String | Nil)
+      if summary.nil? || !data[:model].nil?
+        summary = data[:multi] ? "#{oper} #{data[:model]} list" : "#{oper} #{data[:model]}"
+      end
+
       pdef = Open::Api::OperationItem.new(
-        summary: data[:multi] ? "#{oper} #{data[:model]} list" : "#{oper} #{data[:model]}"
+        summary: summary,
+        description: data[:description].as(String | Nil),
+        tags: data[:tags]?.nil? ? Array(String).new : data[:tags].as(Array(String)),
       )
       pdef.parameters << Open::Api::Parameter.new("id", "path", Open::Api::Schema.new("string"), required: true) if data[:path] =~ /\{id\}/
 
@@ -48,7 +55,8 @@ class Open::Api
       case oper
       when "get"
         if data[:multi]
-          pdef.responses[200] = Open::Api::Response.new("fetch #{data[:model]} object")
+          description = data[:model].nil? ? "An list of objects" : "fetch #{data[:model]} objects"
+          pdef.responses[200] = Open::Api::Response.new(description)
           wrapper = data[:wrapper].as(Wrapper)
 
           refname = "#{format_name(data[:model].as(String))}List"
@@ -66,7 +74,8 @@ class Open::Api
           pdef.parameters << Open::Api::Parameter.new("offset", "query", Open::Api::Schema.new("number", example: 0))
           pdef.parameters << Open::Api::Parameter.new("order_by", "query", Open::Api::Schema.new("string"))
         else
-          pdef.responses[200] = Open::Api::Response.new("fetch #{data[:model]} objects")
+          description = data[:model].nil? ? "An object response" : "fetch #{data[:model]} object"
+          pdef.responses[200] = Open::Api::Response.new(description)
           pdef.responses[200].content["application/json"] = Open::Api::MediaType.new(schema: schema)
         end
 

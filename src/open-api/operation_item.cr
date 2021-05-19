@@ -8,6 +8,9 @@ class Open::Api
 
     property tags : Array(String) = Array(String).new
     property summary : String
+
+    @[JSON::Field(emit_nil: false)]
+    @[YAML::Field(emit_nil: false)]
     property description : String? = nil
     property responses : Hash(Int32, Response) = Hash(Int32, Response).new
 
