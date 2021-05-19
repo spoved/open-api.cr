@@ -43,7 +43,7 @@ class Open::Api
 
       schema = if !data[:schema].nil?
                  data[:schema].as(Open::Api::Schema)
-               elsif api_def.components.schemas[format_name(data[:model].as(String))]?
+               elsif data[:model] && api_def.components.schemas[format_name(data[:model].as(String))]?
                  Open::Api::Ref.new("#/components/schemas/#{format_name(data[:model].as(String))}")
                else
                  Open::Api::Schema.new(
