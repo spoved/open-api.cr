@@ -1,5 +1,14 @@
 # open-api
 
+<p align="center">
+    <a href="https://github.com/spoved/open-api.cr/actions/workflows/build.yml">
+        <img src="https://github.com/spoved/open-api.cr/actions/workflows/build.yml/badge.svg" alt="Build Status"></a>
+    <a href="https://github.com/spoved/open-api.cr/actions/workflows/release.yml">
+        <img src="https://github.com/spoved/open-api.cr/actions/workflows/release.yml/badge.svg" alt="Release Status"></a>
+    <a href="https://github.com/spoved/open-api.cr/releases">
+        <img src="https://img.shields.io/github/v/release/spoved/open-api.cr" alt="Latest release"></a>
+</p>
+
 A crystal implementation of the OpenAPI spec data structures. See [swagger.io](https://swagger.io/specification/)
 
 This is in a current beta form, contributions are always welcome.
