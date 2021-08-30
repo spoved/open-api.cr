@@ -14,11 +14,11 @@ class Open::Api
     property content : Hash(String, Open::Api::MediaType) = Hash(String, Open::Api::MediaType).new
     # Determines if the request body is required in the request. Defaults to false.
     property required : Bool = false
+
+    def initialize(@description, @content = Hash(String, Open::Api::MediaType).new, @required = false); end
+
+    def initialize(@description, @content); end
+
+    def initialize(@description, @content, @required); end
   end
-
-  def initialize(@description); end
-
-  def initialize(@description, @content); end
-
-  def initialize(@description, @content, @required); end
 end

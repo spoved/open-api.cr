@@ -7,14 +7,14 @@ class Open::Api
   include YAML::Serializable
 
   property openapi : String = "3.0.0"
-  property info : Open::Api::Info
+  property info : Open::Api::Info = Open::Api::Info.new("Open Api Server")
   property servers : Array(Open::Api::Server) = Array(Open::Api::Server).new
   property paths : Open::Api::Paths = Open::Api::Paths.new
   property components : Open::Api::Components = Open::Api::Components.new
 
   def initialize(@info : Open::Api::Info); end
 
-  def initialize(title : String = "changeme")
+  def initialize(title : String = "Open Api Server")
     @info = Open::Api::Info.new(title)
   end
 
