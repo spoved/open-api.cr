@@ -6,8 +6,8 @@ class Open::Api
     include JSON::Serializable
     include YAML::Serializable
 
-    property url : String?
-    property description : String?
+    property url : String? = nil
+    property description : String? = nil
 
     def initialize(@url, @description = nil)
     end

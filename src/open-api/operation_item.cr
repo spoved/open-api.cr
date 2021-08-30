@@ -1,5 +1,8 @@
 require "json"
 require "yaml"
+require "./response"
+require "./ref"
+require "./request_body"
 
 class Open::Api
   class OperationItem
@@ -12,7 +15,12 @@ class Open::Api
     @[JSON::Field(emit_nil: false)]
     @[YAML::Field(emit_nil: false)]
     property description : String? = nil
-    property responses : Hash(Int32, Response) = Hash(Int32, Response).new
+    alias Responses = Hash(String | Int32, Open::Api::Response | Open::Api::Ref)
+    property responses : Responses = Responses.new
+
+    @[JSON::Field(key: "requestBody", emit_nil: false)]
+    @[YAML::Field(key: "requestBody", emit_nil: false)]
+    property request_body : Open::Api::RequestBody | Open::Api::Ref? = nil
 
     @[JSON::Field(key: "operationId")]
     @[YAML::Field(key: "operationId")]
@@ -23,6 +31,6 @@ class Open::Api
 
     def initialize(@summary, @description : String? = nil,
                    @tags : Array(String) = Array(String).new,
-                   @responses : Hash(Int32, Response) = Hash(Int32, Response).new); end
+                   @responses : Responses = Responses.new); end
   end
 end
