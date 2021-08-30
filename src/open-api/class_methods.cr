@@ -1,19 +1,21 @@
 class Open::Api
   module ClassMethods
-    def get_open_api_format(type, name : String? = nil) : String
+    def get_open_api_format(type, name : String? = nil) : String?
       case type
-      when (UUID | Nil).class
+      when (UUID | Nil).class, UUID.class
         "uuid"
-      when (String | Nil).class
+      when (String | Nil).class, String.class
         "string"
-      when (Int64 | Nil).class
+      when (Int64 | Nil).class, Int64.class
         "int64"
-      when (Int32 | Nil).class
+      when (Int32 | Nil).class, Int32.class
         "int32"
       when (Float64 | Nil).class, Float64.class
         "double"
       when (Float32 | Nil).class, Float32.class
         "float"
+      when (Bool | Nil).class, Bool.class
+        nil
       else
         raise "unable determine Open::Api format for #{type} : #{name}"
       end
@@ -27,6 +29,8 @@ class Open::Api
         "integer"
       when (Float64 | Nil).class, (Float32 | Nil).class, Float64.class, Float32.class
         "number"
+      when (Bool | Nil).class, Bool.class
+        "boolean"
       else
         raise "unable determine Open::Api type for #{type}"
       end
