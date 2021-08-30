@@ -1,5 +1,6 @@
 require "json"
 require "yaml"
+require "uri"
 
 class Open::Api
   # Will generate the `register_xxx` and `xxx_ref` methods for each component
@@ -8,6 +9,7 @@ class Open::Api
     # Register a `{{type}}` to be used by the OpenAPI spec. Will be stored in `components.{{comp.id}}s`.
     # Use `#{{comp.id}}_ref` to fetch a `Open::Api::Ref` to a {{comp.id}} definition.
     def register_{{comp.id}}(name : String, obj : {{type}})
+      name = URI.encode_www_form(name)
       if self.components.{{comp.id}}s[name]?
         raise "There is already an {{type}} defined with name: #{name}"
       end
@@ -19,11 +21,12 @@ class Open::Api
       unless self.components.{{comp.id}}s[name]?
         raise "There is no Schema defined with name: #{name}"
       end
-      Open::Api::Ref.new("#/components/{{comp.id}}s/#{name}")
+      Open::Api::Ref.new("#/components/{{comp.id}}s/#{URI.encode_www_form(name)}")
     end
 
     # Returns `true` if a `{{type}}` is registered under the given name. Returns `false` otherwise.
     def has_{{comp.id}}_ref?(name : String) : Bool?
+      name = URI.encode_www_form(name)
       self.components.{{comp.id}}s[name]?
     end
     {% end %}
