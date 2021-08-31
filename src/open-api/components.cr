@@ -27,7 +27,7 @@ class Open::Api
     # Returns `true` if a `{{type}}` is registered under the given name. Returns `false` otherwise.
     def has_{{comp.id}}_ref?(name : String) : Bool?
       name = URI.encode_www_form(name)
-      self.components.{{comp.id}}s[name]?
+      self.components.{{comp.id}}s.has_key?(name)
     end
     {% end %}
   end
