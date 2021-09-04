@@ -24,10 +24,13 @@ class Open::Api
       @default = nil,
       @items : SchemaRef? = nil,
       @properties : Hash(String, SchemaRef)? = nil,
-      @required = nil,
+      required = nil,
       @format = nil,
       @example = nil
     )
+      if !required.nil? && !required.empty?
+        @required = required
+      end
     end
   end
 end

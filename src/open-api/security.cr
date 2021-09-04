@@ -1,5 +1,31 @@
-class Open::Api
-  abstract struct SecurityScheme
+class Open::Api::Security
+  # alias SecurityReq = Hash(String, Array(String))
+
+  struct Requirement
+    getter name : String
+    getter scopes : Array(String) = Array(String).new
+
+    def initialize(@name, @scopes : Array(String) = Array(String).new); end
+
+    def to_json(json : JSON::Builder)
+      json.object do
+        json.field @name, @scopes
+      end
+    end
+
+    def to_yaml(yaml : YAML::Nodes::Builder)
+      yaml.mapping do
+        yaml.scalar @name
+        yaml.sequence do
+          @scopes.each do |s|
+            yaml.scalar s
+          end
+        end
+      end
+    end
+  end
+
+  abstract struct Scheme
     include JSON::Serializable
     include YAML::Serializable
 
@@ -8,7 +34,7 @@ class Open::Api
     getter auth_type : String
     property description : String? = nil
 
-    struct ApiKeyAuth < SecurityScheme
+    struct ApiKeyAuth < Scheme
       include JSON::Serializable
       include YAML::Serializable
       @auth_type = "apiKey"
@@ -42,7 +68,7 @@ class Open::Api
       end
     end
 
-    abstract struct HTTPAuth < SecurityScheme
+    abstract struct HTTPAuth < Scheme
       @auth_type = "http"
 
       struct Basic < HTTPAuth
@@ -68,7 +94,7 @@ class Open::Api
       end
     end
 
-    struct OAuth2 < SecurityScheme
+    struct OAuth2 < Scheme
       include JSON::Serializable
       include YAML::Serializable
       @auth_type = "oauth2"
@@ -114,7 +140,7 @@ class Open::Api
       end
     end
 
-    struct OpenId < SecurityScheme
+    struct OpenId < Scheme
       include JSON::Serializable
       include YAML::Serializable
       @auth_type = "openIdConnect"

@@ -37,7 +37,7 @@ class Open::Api
     response:        Open::Api::Response,
     parameter:       Open::Api::Parameter,
     header:          Open::Api::Header,
-    security_scheme: Open::Api::SecurityScheme,
+    security_scheme: Open::Api::Security::Scheme,
   }
   gen_components_methods(COMP_TYPES)
 
@@ -57,7 +57,7 @@ class Open::Api
 
     @[JSON::Field(key: "securitySchemes")]
     @[YAML::Field(key: "securitySchemes")]
-    property security_schemes : Hash(String, Open::Api::SecurityScheme | Open::Api::Ref) = Hash(String, Open::Api::SecurityScheme | Open::Api::Ref).new
+    property security_schemes : Hash(String, Open::Api::Security::Scheme | Open::Api::Ref) = Hash(String, Open::Api::Security::Scheme | Open::Api::Ref).new
 
     # property links : Hash(String, Open::Api::Link) = Hash(String, Open::Api::Link).new
     # property callbacks : Hash(String, Open::Api::Callback) = Hash(String, Open::Api::Callback).new

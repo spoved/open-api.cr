@@ -34,7 +34,7 @@ class Open::Api
     property responses : Responses = Responses.new
 
     # A declaration of which security mechanisms can be used for this operation
-    property security : Hash(String, Array(String)) = Hash(String, Array(String)).new
+    property security : Array(Open::Api::Security::Requirement)? = nil
 
     def initialize(@summary); end
 
@@ -45,7 +45,11 @@ class Open::Api
       @parameters : Array(Parameter | Ref) = Array(Parameter | Ref).new,
       @request_body : Open::Api::RequestBody | Open::Api::Ref? = nil,
       @responses : Responses = Responses.new,
-      @security : Hash(String, Array(String)) = Hash(String, Array(String)).new
-    ); end
+      security : Array(Open::Api::Security::Requirement)? = nil
+    )
+      if !security.nil? && !security.empty?
+        @security = security
+      end
+    end
   end
 end
