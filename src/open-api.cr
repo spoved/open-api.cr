@@ -11,6 +11,8 @@ class Open::Api
   property servers : Array(Open::Api::Server) = Array(Open::Api::Server).new
   property paths : Open::Api::Paths = Open::Api::Paths.new
   property components : Open::Api::Components = Open::Api::Components.new
+  # Apply the security globally to all operations
+  property security : Hash(String, Array(String)) = Hash(String, Array(String)).new
 
   def initialize(@info : Open::Api::Info); end
 
