@@ -27,6 +27,8 @@ class Open::Api
     property operation_id : String? = nil
     property parameters : Array(Parameter | Ref) = Array(Parameter | Ref).new
 
+    property security : Hash(String, Array(String)) = Hash(String, Array(String)).new
+
     def initialize(@summary); end
 
     def initialize(@summary, @description : String? = nil,

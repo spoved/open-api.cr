@@ -33,10 +33,11 @@ class Open::Api
   end
 
   COMP_TYPES = {
-    schema:    Open::Api::Schema,
-    response:  Open::Api::Response,
-    parameter: Open::Api::Parameter,
-    header:    Open::Api::Header,
+    schema:          Open::Api::Schema,
+    response:        Open::Api::Response,
+    parameter:       Open::Api::Parameter,
+    header:          Open::Api::Header,
+    security_scheme: Open::Api::SecurityScheme,
   }
   gen_components_methods(COMP_TYPES)
 
@@ -46,21 +47,18 @@ class Open::Api
 
     macro gen_components_attributes(comps)
       {% for comp, type in comps.resolve %}
+      {% if comp.id != "security_scheme" %}
       property {{comp.id}}s : Hash(String, {{type}} | Open::Api::Ref) = Hash(String, {{type}} | Open::Api::Ref).new
+      {% end %}
       {% end %}
     end
 
     gen_components_attributes COMP_TYPES
 
-    # property examples : Hash(String, Open::Api::Example) = Hash(String, Open::Api::Example).new
+    @[JSON::Field(key: "securitySchemes")]
+    @[YAML::Field(key: "securitySchemes")]
+    property security_schemes : Hash(String, Open::Api::SecurityScheme | Open::Api::Ref) = Hash(String, Open::Api::SecurityScheme | Open::Api::Ref).new
 
-    # @[JSON::Field(key: "requestBodies")]
-    # @[YAML::Field(key: "requestBodies")]
-    # property  request_bodies : Hash(String, Open::Api::RequestBody) = Hash(String, Open::Api::RequestBody).new
-
-    # @[JSON::Field(key: " securitySchemes")]
-    # @[YAML::Field(key: " securitySchemes")]
-    # property   security_schemes : Hash(String, Open::Api::SecurityScheme) = Hash(String, Open::Api::SecurityScheme).new
     # property links : Hash(String, Open::Api::Link) = Hash(String, Open::Api::Link).new
     # property callbacks : Hash(String, Open::Api::Callback) = Hash(String, Open::Api::Callback).new
 
