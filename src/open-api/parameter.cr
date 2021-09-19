@@ -15,13 +15,17 @@ class Open::Api
     property required : Bool = false
     property deprecated : Bool = false
     property schema : Open::Api::SchemaRef | Nil = nil
-
+    property style : String? = nil
+    @[JSON::Field(key: "allowReserved")]
+    @[YAML::Field(key: "allowReserved")]
+    property allow_reserved : Bool = false
     property example : Open::Api::ExampleValue = nil
     property examples : Hash(String, Open::Api::ExampleValue) = Hash(String, Open::Api::ExampleValue).new
 
     def initialize(@name, @parameter_in, @schema : SchemaRef | Nil = nil, @required : Bool = false,
                    @deprecated : Bool = false, @example : Open::Api::ExampleValue = nil,
-                   @examples : Hash(String, Open::Api::ExampleValue) = Hash(String, Open::Api::ExampleValue).new); end
+                   @examples : Hash(String, Open::Api::ExampleValue) = Hash(String, Open::Api::ExampleValue).new,
+                   @description : String? = nil, @style : String? = nil, @allow_reserved : Bool = false); end
 
     def self.new(name, type, location = "query", description : String = "", required : Bool = false,
                  default_value : String | Int32 | Int64 | Float64 | Bool | Nil = nil,

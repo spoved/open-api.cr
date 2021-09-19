@@ -10,8 +10,8 @@ class Open::Api
     @[YAML::Field(key: "type")]
     property schema_type : String
     property format : String? = nil
-    property items : SchemaRef? = nil
-    property properties : Hash(String, SchemaRef)? = nil
+    property items : Open::Api::SchemaRef? = nil
+    property properties : Hash(String, Open::Api::SchemaRef)? = nil
     property required : Array(String)? = nil
     property default : String | Bool | Int32 | Int64 | Nil = nil
 
@@ -20,13 +20,13 @@ class Open::Api
     property example : Open::Api::ExampleValue = nil
 
     def initialize(
-      @schema_type,
-      @default = nil,
-      @items : SchemaRef? = nil,
-      @properties : Hash(String, SchemaRef)? = nil,
-      required = nil,
-      @format = nil,
-      @example = nil
+      @schema_type : String,
+      @default : String | Bool | Int32 | Int64 | Nil = nil,
+      @items : Open::Api::SchemaRef? = nil,
+      @properties : Hash(String, Open::Api::SchemaRef)? = nil,
+      required : Array(String)? = nil,
+      @format : String? = nil,
+      @example : Open::Api::ExampleValue = nil
     )
       if !required.nil? && !required.empty?
         @required = required
