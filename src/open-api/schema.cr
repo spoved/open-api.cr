@@ -14,6 +14,9 @@ class Open::Api
     property properties : Hash(String, Open::Api::SchemaRef)? = nil
     property required : Array(String)? = nil
     property default : String | Bool | Int32 | Int64 | Nil = nil
+    @[JSON::Field(key: "additionalProperties")]
+    @[YAML::Field(key: "additionalProperties")]
+    property additional_properties : Open::Api::SchemaRef? = nil
 
     @[JSON::Field(emit_nil: false)]
     @[YAML::Field(emit_nil: false)]
