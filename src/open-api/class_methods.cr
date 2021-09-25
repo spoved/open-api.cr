@@ -1,10 +1,13 @@
+require "uri"
+require "uuid"
+
 class Open::Api
   module ClassMethods
     def get_open_api_format(type, name : String? = nil) : String?
       case type
       when (UUID | Nil).class, UUID.class
         "uuid"
-      when (String | Nil).class, String.class
+      when (String | Nil).class, String.class, URI.class
         "string"
       when (Int64 | Nil).class, Int64.class
         "int64"
@@ -23,7 +26,7 @@ class Open::Api
 
     def get_open_api_type(type) : String
       case type
-      when (String | Nil).class, (UUID | Nil).class, String.class, UUID.class
+      when (String | Nil).class, (UUID | Nil).class, String.class, UUID.class, URI.class
         "string"
       when (Int64 | Nil).class, (Int32 | Nil).class, Int64.class, Int32.class
         "integer"
