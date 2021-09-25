@@ -13,7 +13,7 @@ class Open::Api
     property items : Open::Api::SchemaRef? = nil
     property properties : Hash(String, Open::Api::SchemaRef)? = nil
     property required : Array(String)? = nil
-    property default : String | Bool | Int32 | Int64 | Nil = nil
+    property default : String | Bool | Int32 | Int64 | Float32 | Float64 | Nil = nil
     @[JSON::Field(key: "additionalProperties")]
     @[YAML::Field(key: "additionalProperties")]
     property additional_properties : Open::Api::SchemaRef? = nil
@@ -24,7 +24,7 @@ class Open::Api
 
     def initialize(
       @schema_type : String,
-      @default : String | Bool | Int32 | Int64 | Nil = nil,
+      @default : String | Bool | Int32 | Int64 | Float32 | Float64 | Nil = nil,
       @items : Open::Api::SchemaRef? = nil,
       @properties : Hash(String, Open::Api::SchemaRef)? = nil,
       required : Array(String)? = nil,
