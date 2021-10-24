@@ -40,7 +40,7 @@ class Open::Api
       {% model = type.resolve %}
       {% klass = model.union_types.empty? ? model : model.union_types.reject(&.==(Nil)).first %}
 
-      {% if klass <= Int32 || klass <= Int64 || klass <= Float32 || klass <= Float64 || klass <= Nil || klass <= UUID || klass <= Bool || klass <= String || klass <= URI %}
+      {% if klass <= Int32 || klass <= Int64 || klass <= Float32 || klass <= Float64 || klass <= Nil || klass <= UUID || klass <= Bool || klass <= String || klass <= URI || model <= Time %}
         Open::Api::Schema.new(Open::Api.get_open_api_type({{klass}}), format: Open::Api.get_open_api_format({{klass}}))
       {% elsif model <= Hash %}
         {% vvar = klass.type_vars.last.union_types.reject(&.==(Nil)).first %}
