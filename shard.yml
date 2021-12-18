@@ -2,7 +2,7 @@ name: open-api
 version: 0.2.9
 
 authors:
-    - Holden Omans <holden.omans@gmail.com>
+  - Holden Omans <holden.omans@gmail.com>
 
 crystal: ">= 0.35.0, < 2.0.0"
 
