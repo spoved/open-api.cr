@@ -22,6 +22,10 @@ class Open::Api
     @[YAML::Field(emit_nil: false)]
     property example : Open::Api::ExampleValue = nil
 
+    @[JSON::Field(emit_nil: false)]
+    @[YAML::Field(emit_nil: false)]
+    property description : String? = nil
+
     def initialize(
       @schema_type : String,
       @default : String | Bool | Int32 | Int64 | Float32 | Float64 | Nil = nil,
@@ -62,6 +66,32 @@ class Open::Api
           {% end %}
         )
       {% end %}
+    end
+
+    def to_h
+      Hash(String, Open::Api::ExampleValue){
+        "type"                 => schema_type,
+        "format"               => format,
+        "items"                => items.try(&.to_h.as(Hash(String, Open::Api::ExampleValue))).as(Open::Api::ExampleValue),
+        "properties"           => properties.try(&.transform_values(&.to_h.as(Hash(String, Open::Api::ExampleValue)).as(Open::Api::ExampleValue))).as(Open::Api::ExampleValue),
+        "required"             => required.as(Open::Api::ExampleValue),
+        "default"              => default.as(Open::Api::ExampleValue),
+        "additionalProperties" => additional_properties.try(&.to_h),
+        "example"              => example.as(Open::Api::ExampleValue),
+        "description"          => description.as(Open::Api::ExampleValue),
+      }
+        .reject { |k, v| ["example", "description", "required"].includes?(k) && v.nil? }
+    end
+
+    private def example_to_h(e)
+      case e
+      when Hash
+        e.transform_values { |v| example_to_h(v) }
+      when Array
+        e.map { |v| example_to_h(v) }
+      else
+        e
+      end
     end
   end
 end

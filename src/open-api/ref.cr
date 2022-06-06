@@ -11,5 +11,11 @@ class Open::Api
     property ref : String
 
     def initialize(@ref); end
+
+    def to_h : Hash(String, Open::Api::ExampleValue)
+      Hash(String, Open::Api::ExampleValue){
+        "$ref" => ref,
+      }
+    end
   end
 end
