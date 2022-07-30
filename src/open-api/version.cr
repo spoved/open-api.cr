@@ -1,3 +1,3 @@
 class Open::Api
-  VERSION = "0.2.9"
+  VERSION = {{ `shards version "#{__DIR__}"`.chomp.stringify }}
 end
