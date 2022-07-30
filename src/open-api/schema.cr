@@ -60,7 +60,11 @@ class Open::Api
           {% if model.instance_vars.size > 0 %}
           properties: Hash(String, Open::Api::SchemaRef){
             {% for var in model.instance_vars %}
-            "{{var.name}}" => Open::Api::Schema.from_type({{var.type.union_types.reject(&.==(Nil)).first}}),
+              {% if var.annotation(JSON::Field) && var.annotation(JSON::Field)[:key] %}
+                {{var.annotation(JSON::Field)[:key]}} => Open::Api::Schema.from_type({{var.type.union_types.reject(&.==(Nil)).first}}),
+              {% else %}
+                "{{var.name}}" => Open::Api::Schema.from_type({{var.type.union_types.reject(&.==(Nil)).first}}),
+              {% end %}
             {% end %}
           }
           {% end %}
