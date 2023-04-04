@@ -8,7 +8,7 @@ class Open::Api
 
     @[JSON::Field(key: "type")]
     @[YAML::Field(key: "type")]
-    property schema_type : String
+    property schema_type : String? = nil
     property format : String? = nil
     property items : Open::Api::SchemaRef? = nil
     property properties : Hash(String, Open::Api::SchemaRef)? = nil
@@ -26,6 +26,10 @@ class Open::Api
     @[YAML::Field(emit_nil: false)]
     property description : String? = nil
 
+    @[JSON::Field(key: "anyOf", emit_nil: false)]
+    @[YAML::Field(key: "anyOf", emit_nil: false)]
+    property any_of : Array(Open::Api::SchemaRef)? = nil
+
     def initialize(
       @schema_type : String,
       @default : String | Bool | Int32 | Int64 | Float32 | Float64 | Nil = nil,
@@ -40,35 +44,75 @@ class Open::Api
       end
     end
 
-    macro from_type(type)
-      {% model = type.resolve %}
-      {% klass = model.union_types.empty? ? model : model.union_types.reject(&.==(Nil)).first %}
+    def initialize; end
 
-      {% if klass <= Int32 || klass <= Int64 || klass <= Float32 || klass <= Float64 || klass <= Nil || klass <= UUID || klass <= Bool || klass <= String || klass <= URI || model <= Time %}
-        Open::Api::Schema.new(Open::Api.get_open_api_type({{klass}}), format: Open::Api.get_open_api_format({{klass}}))
-      {% elsif model <= Hash %}
-        {% vvar = klass.type_vars.last.union_types.reject(&.==(Nil)).first %}
-        Open::Api::Schema.new("object").tap do |schema|
-          schema.additional_properties = Open::Api::Schema.from_type({{vvar.id}})
-        end
-      {% elsif model <= Array %}
-        Open::Api::Schema.new("array",
-          items: Open::Api::Schema.from_type({{klass.type_vars.first}}),
-        )
-      {% else %}
-        Open::Api::Schema.new("object",
-          {% if model.instance_vars.size > 0 %}
-          properties: Hash(String, Open::Api::SchemaRef){
-            {% for var in model.instance_vars %}
-              {% if var.annotation(JSON::Field) && var.annotation(JSON::Field)[:key] %}
-                {{var.annotation(JSON::Field)[:key]}} => Open::Api::Schema.from_type({{var.type.union_types.reject(&.==(Nil)).first}}),
-              {% else %}
-                "{{var.name}}" => Open::Api::Schema.from_type({{var.type.union_types.reject(&.==(Nil)).first}}),
-              {% end %}
+    macro from_type(type)
+      {% model = type.is_a?(StringLiteral) ? parse_type(type).resolve : type.resolve %}
+      {% if model.is_a?(Union) || model.union_types.reject(&.==(Nil)).size > 1 %}
+        Open::Api::Schema.new.tap do |%schema|
+          %any_of = Array(Open::Api::SchemaRef).new
+          {% for var in model.union_types %}
+            {% if var.is_a?(NilLiteral) %}
+            {% else %}
+              %any_of << Open::Api::Schema.from_type({{var}})
             {% end %}
-          }
           {% end %}
-        )
+          %schema.any_of = %any_of
+        end
+      {% else %}
+        {% klass = model.union_types.empty? ? model : model.union_types.reject(&.==(Nil)).first %}
+
+        {% if klass.is_a?(NilLiteral) %}
+          Open::Api::Schema.new("null")
+        {% elsif klass.id == "YAML::Any" || klass.id == "JSON::Any" %}
+          Open::Api::Schema.new.tap do |%schema2|
+            %any_of2 = Array(Open::Api::SchemaRef).new
+            %any_of2 << Open::Api::Schema.new("object")
+            %any_of2 << Open::Api::Schema.new("array")
+            %any_of2 << Open::Api::Schema.new("number")
+            %any_of2 << Open::Api::Schema.new("integer")
+            {% for var in [Bool, String, Nil] %}
+            %any_of2 << Open::Api::Schema.from_type({{var}})
+            {% end %}
+            %schema2.any_of = %any_of2
+          end
+        {% elsif klass <= Int32 || klass <= Int64 || klass <= Float32 || klass <= Float64 || klass <= Nil || klass <= UUID || klass <= Bool || klass <= String || klass <= URI || model <= Time %}
+          Open::Api::Schema.new(Open::Api.get_open_api_type({{klass}}), format: Open::Api.get_open_api_format({{klass}}))
+        {% elsif model <= Hash %}
+          {% vvar = klass.type_vars.last.union_types.reject(&.==(Nil)).first %}
+          Open::Api::Schema.new("object").tap do |%schema1|
+            %schema1.additional_properties = Open::Api::Schema.from_type({{vvar.id}})
+          end
+        {% elsif model <= Array %}
+          Open::Api::Schema.new("array",
+            items: Open::Api::Schema.from_type({{klass.type_vars.first}}),
+          )
+        {% elsif klass.id == "YAML::Any" || klass.id == "JSON::Any" %}
+          Open::Api::Schema.new.tap do |%schema2|
+            %any_of2 = Array(Open::Api::SchemaRef).new
+            %any_of2 << Open::Api::Schema.new("object")
+            %any_of2 << Open::Api::Schema.new("array")
+            %any_of2 << Open::Api::Schema.new("number")
+            %any_of2 << Open::Api::Schema.new("integer")
+            {% for var in [Bool, String, Time, Nil] %}
+            %any_of2 << Open::Api::Schema.from_type({{var}})
+            {% end %}
+          end
+        {% else %}
+          Open::Api::Schema.new("object").tap do |%schema3|
+            {% if model.instance_vars.size > 0 %}
+            %schema3.properties = Hash(String, Open::Api::SchemaRef){
+              {% for var in model.instance_vars %}
+                {% if var.annotation(JSON::Field) && var.annotation(JSON::Field)[:key] %}
+                  {{var.annotation(JSON::Field)[:key]}} => Open::Api::Schema.from_type({{var.type.union_types.reject(&.==(Nil)).first}}),
+                {% else %}
+                  "{{var.name}}" => Open::Api::Schema.from_type("{{var.type}}"),
+                {% end %}
+              {% end %}
+            }
+            {% end %}
+          end
+        {% end %}
       {% end %}
     end
 
